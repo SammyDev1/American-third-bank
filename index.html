@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>America Fifth Bank – Williams Serah</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: linear-gradient(160deg, #070e1a 0%, #0f1f33 40%, #0a1628 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* ══════════ LOGIN ══════════ */
+        #login-screen {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        #login-screen.hidden { display: none; }
+
+        .login-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 26px; font-weight: 800; color: #fff;
+            letter-spacing: -1px;
+            box-shadow: 0 6px 24px rgba(198,40,40,0.35);
+        }
+        .login-header { text-align: center; margin-bottom: 32px; }
+        .login-header h1 { color: #fff; font-size: 22px; font-weight: 600; }
+        .login-header p { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block; color: rgba(255,255,255,0.6);
+            font-size: 12px; font-weight: 500; margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%; padding: 14px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 12px; color: #fff; font-size: 15px;
+            outline: none; transition: border 0.2s;
+        }
+        .form-group input:focus { border-color: #c62828; background: rgba(255,255,255,0.09); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; position: relative;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(198,40,40,0.30);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(198,40,40,0.40); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .login-error { color: #ff5252; font-size: 13px; text-align: center; margin-top: 14px; min-height: 20px; }
+        .login-footer { text-align: center; margin-top: 24px; color: rgba(255,255,255,0.18); font-size: 11px; }
+
+        .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════ DASHBOARD ══════════ */
+        #dashboard {
+            width: 100%;
+            max-width: 880px;
+            transition: opacity 0.3s;
+        }
+        #dashboard.hidden { display: none; }
+
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 4px;
+            gap: 8px;
+        }
+        .dash-header-left { display: flex; align-items: center; gap: 10px; }
+        .dash-header-left .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: #fff;
+            box-shadow: 0 4px 14px rgba(198,40,40,0.25);
+            flex-shrink: 0;
+        }
+        .dash-header-left .brand-text { color: #fff; font-size: 15px; font-weight: 600; line-height: 1.2; }
+        .dash-header-left .brand-text small { display: block; font-size: 9px; font-weight: 400; color: rgba(255,255,255,0.3); }
+
+        .dash-header-right { display: flex; align-items: center; gap: 8px; }
+        .user-greeting { color: rgba(255,255,255,0.6); font-size: 12px; white-space: nowrap; }
+        .user-greeting strong { color: #fff; }
+        .logout-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.45);
+            padding: 5px 12px; border-radius: 8px;
+            font-size: 11px; cursor: pointer; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
+
+        .main-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+            min-height: 540px;
+            position: relative;
+        }
+
+        .tab-page { display: none; padding: 0; }
+        .tab-page.active { display: block; }
+
+        /* ══════════ DASHBOARD PAGE ══════════ */
+        .dash-page { padding: 18px 16px 14px; }
+
+        .welcome-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 8px;
+        }
+        .welcome-strip h1 { color: #fff; font-size: 17px; font-weight: 500; }
+        .welcome-strip h1 strong { color: #90e0ef; font-weight: 700; }
+        .welcome-strip .date-badge {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: rgba(255,255,255,0.4);
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .total-balance-card {
+            background: linear-gradient(145deg, #0a1f33, #122b44);
+            border: 1px solid rgba(0,150,255,0.10);
+            border-radius: 16px;
+            padding: 18px 20px 16px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .total-balance-card::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0,180,216,0.05), transparent);
+            border-radius: 50%;
+        }
+        .total-balance-card .tb-label {
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .total-balance-card .tb-amount {
+            color: #fff;
+            font-size: 34px;
+            font-weight: 700;
+            margin: 2px 0 2px;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+        .total-balance-card .tb-amount .cur {
+            color: rgba(255,255,255,0.25);
+            font-size: 20px;
+            margin-right: 4px;
+        }
+        .total-balance-card .tb-sub {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+        .total-balance-card .tb-sub span { color: rgba(255,255,255,0.35); font-size: 11px; }
+        .total-balance-card .tb-sub .up { color: #00d4aa; }
+
+        /* ══════ FLEX ROWS — ALWAYS LEFT TO RIGHT ══════ */
+        .flex-row-2 {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .flex-row-2 > * {
+            flex: 1;
+            min-width: 0;
+            width: 50%;
+        }
+
+        .flex-row-3 {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .flex-row-3 > * {
+            flex: 1;
+            min-width: 0;
+            width: 33.33%;
+        }
+
+        .flex-row-4 {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .flex-row-4 > * {
+            flex: 1;
+            min-width: 0;
+            width: 25%;
+        }
+
+        /* Account cards */
+        .acc-card {
+            border-radius: 14px;
+            padding: 14px 14px 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            position: relative;
+            transition: all 0.2s;
+        }
+        .acc-card:hover { transform: translateY(-2px); }
+        .acc-card.checking {
+            background: linear-gradient(145deg, #0d2840, #163a57);
+            border-color: rgba(0,150,255,0.12);
+        }
+        .acc-card.savings {
+            background: linear-gradient(145deg, #0f2920, #17382b);
+            border-color: rgba(0,200,150,0.10);
+        }
+        .acc-card .acc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .acc-card .acc-type-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 500;
+        }
+        .acc-card .acc-type-label small {
+            display: block;
+            font-size: 8px;
+            color: rgba(255,255,255,0.15);
+            letter-spacing: 0.3px;
+            margin-top: 1px;
+        }
+        .acc-card .acc-badge-tag {
+            font-size: 8px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .acc-card.checking .acc-badge-tag { background: rgba(0,150,255,0.15); color: #5bb8ff; }
+        .acc-card.savings .acc-badge-tag { background: rgba(0,200,150,0.12); color: #00d4aa; }
+        .acc-card .acc-balance { color: #fff; font-size: 20px; font-weight: 700; }
+        .acc-card .acc-balance .cur { color: rgba(255,255,255,0.2); font-size: 13px; margin-right: 2px; }
+        .acc-card .acc-number { color: rgba(255,255,255,0.15); font-size: 10px; margin-top: 3px; }
+        .acc-card .acc-progress {
+            margin-top: 8px;
+            height: 3px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .acc-card .acc-progress .fill { height: 100%; border-radius: 10px; }
+        .acc-card.checking .acc-progress .fill { background: linear-gradient(90deg, #0077b6, #00b4d8); width: 78%; }
+        .acc-card.savings .acc-progress .fill { background: linear-gradient(90deg, #00b4d8, #00d4aa); width: 0%; }
+
+        /* Action buttons */
+        .qaction {
+            padding: 12px 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .qaction:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .qaction:active { transform: translateY(0); }
+        .qaction .qicon { display: block; font-size: 18px; margin-bottom: 2px; }
+        .qaction .qicon.green { color: #00d4aa; }
+        .qaction .qicon.orange { color: #ffb347; }
+        .qaction .qicon.blue { color: #4ea8de; }
+
+        /* Insight cards */
+        .insight-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 12px 10px 10px;
+            text-align: center;
+        }
+        .insight-card .ins-num { color: #fff; font-size: 17px; font-weight: 700; }
+        .insight-card .ins-num .green { color: #00d4aa; }
+        .insight-card .ins-num .red { color: #ff5252; }
+        .insight-card .ins-label { color: rgba(255,255,255,0.25); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        /* Recent transactions */
+        .mini-txn-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .mini-txn-header h3 { color: #fff; font-size: 14px; font-weight: 600; }
+        .mini-txn-header .view-all {
+            color: rgba(255,255,255,0.25);
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+        }
+        .mini-txn-header .view-all:hover { color: #c62828; }
+
+        .mini-txn-list { display: flex; flex-direction: column; gap: 3px; }
+        .mini-txn-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s;
+        }
+        .mini-txn-item:hover { background: rgba(255,255,255,0.03); }
+        .mini-txn-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .mtxn-icon {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; flex-shrink: 0;
+        }
+        .mtxn-icon.credit { background: rgba(0,200,150,0.10); color: #00d4aa; }
+        .mtxn-icon.debit { background: rgba(255,80,80,0.08); color: #ff5252; }
+        .mtxn-icon.transfer { background: rgba(78,168,222,0.10); color: #4ea8de; }
+        .mtxn-details { min-width: 0; }
+        .mtxn-details .mtxn-desc { color: #fff; font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mtxn-details .mtxn-date { color: rgba(255,255,255,0.2); font-size: 9px; margin-top: 0px; }
+        .mtxn-amount { text-align: right; flex-shrink: 0; }
+        .mtxn-amount .mval { font-size: 11px; font-weight: 600; }
+        .mtxn-amount .mval.positive { color: #00d4aa; }
+        .mtxn-amount .mval.negative { color: #ff5252; }
+        .mtxn-amount .mval.neutral { color: #4ea8de; }
+
+        /* ══════════ DIRECT DEPOSIT PAGE ══════════ */
+        .dd-page { padding: 18px 16px; }
+
+        .dd-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .dd-header .dd-icon {
+            width: 44px; height: 44px;
+            background: rgba(0,180,216,0.10);
+            border: 1px solid rgba(0,180,216,0.15);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .dd-header .dd-title h2 { color: #fff; font-size: 17px; font-weight: 600; }
+        .dd-header .dd-title p { color: rgba(255,255,255,0.35); font-size: 11px; margin-top: 1px; }
+
+        .dd-info-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+        .dd-info-box .dd-label {
+            color: rgba(255,255,255,0.3);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .dd-info-box .dd-value {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        .dd-info-box .dd-value .copy-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.4);
+            padding: 1px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: all 0.2s;
+        }
+        .dd-info-box .dd-value .copy-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
+        .dd-info-box .dd-desc {
+            color: rgba(255,255,255,0.25);
+            font-size: 10px;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .dd-note {
+            background: rgba(255,200,0,0.04);
+            border: 1px solid rgba(255,200,0,0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 6px;
+        }
+        .dd-note p {
+            color: rgba(255,255,255,0.45);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .dd-note p strong { color: rgba(255,255,255,0.7); }
+
+        .dd-note.green {
+            border-color: rgba(0,200,150,0.08);
+            background: rgba(0,200,150,0.03);
+        }
+
+        /* ══════════ MOVE MONEY PAGE ══════════ */
+        .move-page { padding: 24px 20px; text-align: center; }
+        .move-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .move-title { color: #fff; font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+        .move-desc { color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.5; margin-bottom: 18px; max-width: 340px; margin-left: auto; margin-right: auto; }
+        .move-desc strong { color: rgba(255,255,255,0.7); }
+
+        .move-buttons-2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .move-buttons-2 > * {
+            flex: 1;
+            min-width: 120px;
+        }
+        .move-btn {
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .move-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+        /* ══════════ HISTORY PAGE ══════════ */
+        .history-page { padding: 16px 16px 20px; }
+        .history-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px;
+        }
+        .history-header h3 { color: #fff; font-size: 14px; font-weight: 600; }
+        .history-header .filter-badge {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 3px 10px;
+            border-radius: 14px;
+            color: rgba(255,255,255,0.3);
+            font-size: 9px;
+        }
+        .full-txn-list {
+            display: flex; flex-direction: column; gap: 3px;
+            max-height: 340px; overflow-y: auto; padding-right: 4px;
+        }
+        .full-txn-list::-webkit-scrollbar { width: 3px; }
+        .full-txn-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+        .full-txn-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 12px; border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s;
+        }
+        .full-txn-item:hover { background: rgba(255,255,255,0.04); }
+        .full-txn-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ftxn-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; flex-shrink: 0;
+        }
+        .ftxn-icon.credit { background: rgba(0,200,150,0.10); color: #00d4aa; }
+        .ftxn-icon.debit { background: rgba(255,80,80,0.08); color: #ff5252; }
+        .ftxn-icon.transfer { background: rgba(78,168,222,0.10); color: #4ea8de; }
+        .ftxn-details { min-width: 0; }
+        .ftxn-details .ftxn-desc { color: #fff; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ftxn-details .ftxn-date { color: rgba(255,255,255,0.25); font-size: 10px; margin-top: 0px; }
+        .ftxn-amount { text-align: right; flex-shrink: 0; }
+        .ftxn-amount .fval { font-size: 12px; font-weight: 600; }
+        .ftxn-amount .fval.positive { color: #00d4aa; }
+        .ftxn-amount .fval.negative { color: #ff5252; }
+        .ftxn-amount .fval.neutral { color: #4ea8de; }
+        .ftxn-amount .fstatus { font-size: 9px; color: #00d4aa; }
+
+        /* ══════════ BOTTOM NAV ══════════ */
+        .bottom-nav {
+            display: flex;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.2);
+        }
+        .bottom-tab {
+            flex: 1; padding: 10px 6px 8px;
+            background: none; border: none;
+            color: rgba(255,255,255,0.25);
+            font-size: 9px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-top: 2px solid transparent;
+        }
+        .bottom-tab .nav-icon { display: block; font-size: 18px; margin-bottom: 1px; }
+        .bottom-tab:hover { color: rgba(255,255,255,0.5); }
+        .bottom-tab.active { color: #c62828; border-top-color: #c62828; }
+
+        /* ══════════ MODAL ══════════ */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+            padding: 20px; z-index: 999;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #122b3f; border-radius: 24px;
+            padding: 36px 32px 28px; max-width: 400px; width: 100%;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.25s ease-out;
+        }
+        @keyframes modalIn { from { opacity:0; transform:scale(0.92) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .modal-icon { font-size: 48px; text-align: center; margin-bottom: 10px; }
+        .modal-title { color:#fff; font-size:20px; font-weight:600; text-align:center; margin-bottom:8px; }
+        .modal-body { color:rgba(255,255,255,0.55); font-size:14px; text-align:center; line-height:1.6; margin-bottom:24px; }
+        .modal-body strong { color:rgba(255,255,255,0.85); }
+        .modal-close-btn {
+            width:100%; padding:12px; background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+            color:#fff; font-size:14px; font-weight:500; cursor:pointer;
+            transition:background 0.2s;
+        }
+        .modal-close-btn:hover { background:rgba(255,255,255,0.10); }
+
+        /* ── NO MEDIA QUERY BREAKPOINT NEEDED ── */
+        /* Everything stays flex, always left to right */
+    </style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+    <div class="login-logo">A5</div>
+    <div class="login-header">
+        <h1>America Fifth Bank</h1>
+        <p>Secure online banking portal</p>
+    </div>
+    <div class="form-group">
+        <label for="username">Email / Username</label>
+        <input type="text" id="username" placeholder="e.g. robertserah58@gmail.com" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="login-btn">
+        <span id="login-btn-text">Sign In</span>
+    </button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">
+        <p>SSL-encrypted connection &bull; FDIC insured</p>
+    </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="dashboard" class="hidden">
+    <div class="dash-header">
+        <div class="dash-header-left">
+            <div class="brand-icon">A5</div>
+            <div class="brand-text">
+                America Fifth Bank
+                <small>Online Banking</small>
+            </div>
+        </div>
+        <div class="dash-header-right">
+            <span class="user-greeting"><strong id="display-name">Williams Serah</strong></span>
+            <button class="logout-btn" id="logout-btn">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-card">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="tab-page active" id="page-dashboard">
+            <div class="dash-page">
+                <div class="welcome-strip">
+                    <h1>Good morning, <strong>Williams</strong></h1>
+                    <span class="date-badge" id="current-date"></span>
+                </div>
+
+                <div class="total-balance-card">
+                    <div class="tb-label">Total Account Balance</div>
+                    <div class="tb-amount"><span class="cur">$</span>5,900,000.<span style="font-size:18px;">00</span></div>
+                    <div class="tb-sub">
+                        <span class="up">↑ +$48,200 today</span>
+                        <span>•</span>
+                        <span>+$320,000 this month</span>
+                        <span>•</span>
+                        <span>APY 4.25%</span>
+                    </div>
+                </div>
+
+                <!-- ALWAYS LEFT TO RIGHT: Checking | Savings -->
+                <div class="flex-row-2">
+                    <div class="acc-card checking">
+                        <div class="acc-top">
+                            <div class="acc-type-label">
+                                Checking
+                                <small>****4832</small>
+                            </div>
+                            <span class="acc-badge-tag">Primary</span>
+                        </div>
+                        <div class="acc-balance"><span class="cur">$</span>5,900,000.<span style="font-size:12px;">00</span></div>
+                        <div class="acc-number">Available</div>
+                        <div class="acc-progress"><div class="fill"></div></div>
+                    </div>
+                    <div class="acc-card savings">
+                        <div class="acc-top">
+                            <div class="acc-type-label">
+                                Savings
+                                <small>****7916</small>
+                            </div>
+                            <span class="acc-badge-tag">Savings</span>
+                        </div>
+                        <div class="acc-balance"><span class="cur">$</span>0.<span style="font-size:12px;">00</span></div>
+                        <div class="acc-number">4.25% APY</div>
+                        <div class="acc-progress"><div class="fill"></div></div>
+                    </div>
+                </div>
+
+                <!-- ALWAYS LEFT TO RIGHT: Deposit | Withdraw | Transfer -->
+                <div class="flex-row-3">
+                    <div class="qaction" data-action="deposit">
+                        <span class="qicon green">⬇</span>
+                        Deposit
+                    </div>
+                    <div class="qaction" data-action="withdraw">
+                        <span class="qicon orange">⬆</span>
+                        Withdraw
+                    </div>
+                    <div class="qaction" data-action="transfer">
+                        <span class="qicon blue">⇄</span>
+                        Transfer
+                    </div>
+                </div>
+
+                <!-- ALWAYS LEFT TO RIGHT: Insights -->
+                <div class="flex-row-3">
+                    <div class="insight-card">
+                        <div class="ins-num"><span class="green">$0.00</span></div>
+                        <div class="ins-label">Interest</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="ins-num">$12,450</div>
+                        <div class="ins-label">Spending</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="ins-num"><span class="green">$0.00</span></div>
+                        <div class="ins-label">Cashback</div>
+                    </div>
+                </div>
+
+                <div class="mini-txn-header">
+                    <h3>Recent Transactions</h3>
+                    <button class="view-all" id="goto-history-btn">View All →</button>
+                </div>
+                <div class="mini-txn-list" id="mini-txn-list"></div>
+            </div>
+        </div>
+
+        <!-- ===== DIRECT DEPOSIT ===== -->
+        <div class="tab-page" id="page-directdeposit">
+            <div class="dd-page">
+                <div class="dd-header">
+                    <div class="dd-icon">🏦</div>
+                    <div class="dd-title">
+                        <h2>Direct Deposit Setup</h2>
+                        <p>Provide these details to your employer</p>
+                    </div>
+                </div>
+
+                <div class="flex-row-2">
+                    <div class="dd-info-box">
+                        <div class="dd-label">Financial Institution</div>
+                        <div class="dd-value">America Fifth Bank</div>
+                        <div class="dd-desc">Member FDIC</div>
+                    </div>
+                    <div class="dd-info-box">
+                        <div class="dd-label">Routing (ABA)</div>
+                        <div class="dd-value">
+                            021000021
+                            <span class="copy-btn" data-copy="021000021">Copy</span>
+                        </div>
+                        <div class="dd-desc">ACH & wire transfers</div>
+                    </div>
+                </div>
+
+                <div class="flex-row-2">
+                    <div class="dd-info-box">
+                        <div class="dd-label">Account Number</div>
+                        <div class="dd-value">****4832 <span style="color:rgba(255,255,255,0.2);font-size:11px;">(masked)</span></div>
+                        <div class="dd-desc">Checking account ending in 4832</div>
+                    </div>
+                    <div class="dd-info-box">
+                        <div class="dd-label">Account Type</div>
+                        <div class="dd-value">Personal Checking</div>
+                        <div class="dd-desc">Payroll & everyday deposits</div>
+                    </div>
+                </div>
+
+                <div class="flex-row-2">
+                    <div class="dd-info-box">
+                        <div class="dd-label">Bank Address</div>
+                        <div class="dd-value" style="font-size:12px;">425 Park Ave, Suite 1200<br>New York, NY 10022</div>
+                        <div class="dd-desc">Main office for ACH reference</div>
+                    </div>
+                    <div class="dd-info-box">
+                        <div class="dd-label">Deposit Allocation</div>
+                        <div class="dd-value">100% → Checking</div>
+                        <div class="dd-desc">Split available in settings</div>
+                    </div>
+                </div>
+
+                <div class="flex-row-2">
+                    <div class="dd-info-box">
+                        <div class="dd-label">SWIFT / BIC</div>
+                        <div class="dd-value">
+                            AMFBUS33
+                            <span class="copy-btn" data-copy="AMFBUS33">Copy</span>
+                        </div>
+                        <div class="dd-desc">International wires</div>
+                    </div>
+                    <div class="dd-info-box">
+                        <div class="dd-label">FedWire / CHIPS</div>
+                        <div class="dd-value">021000021 • 0001</div>
+                        <div class="dd-desc">Domestic wires & same-day ACH</div>
+                    </div>
+                </div>
+
+                <div class="dd-note">
+                    <p><strong>⏱ Deposit Times:</strong> Payroll deposits available by 6:00 AM ET on payday. ACH: 1–2 business days. Wires: same-day before 4 PM ET.</p>
+                </div>
+                <div class="dd-note green">
+                    <p><strong>✅ Verified:</strong> Pre-validated for direct deposit. Name on file: Williams Serah. Micro-deposits available on request.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MOVE MONEY ===== -->
+        <div class="tab-page" id="page-move">
+            <div class="move-page">
+                <span class="move-icon">💳</span>
+                <div class="move-title">Move Money</div>
+                <div class="move-desc">
+                    Transfer between accounts or send to external banks.
+                    <strong>Over $10,000</strong> requires manager approval.
+                </div>
+                <div class="move-buttons-2">
+                    <div class="move-btn" data-action="transfer">
+                        <span>⇄</span> Transfer
+                    </div>
+                    <div class="move-btn" data-action="withdraw">
+                        <span>⬆</span> Withdraw
+                    </div>
+                    <div class="move-btn" data-action="deposit">
+                        <span>⬇</span> Deposit
+                    </div>
+                    <div class="move-btn" data-action="transfer">
+                        <span>🏦</span> Wire
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== HISTORY ===== -->
+        <div class="tab-page" id="page-history">
+            <div class="history-page">
+                <div class="history-header">
+                    <h3>Transaction History</h3>
+                    <span class="filter-badge">Last 30 days</span>
+                </div>
+                <div class="full-txn-list" id="full-txn-list"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="bottom-tab active" data-tab="dashboard">
+                <span class="nav-icon">🏠</span>
+                Dashboard
+            </button>
+            <button class="bottom-tab" data-tab="directdeposit">
+                <span class="nav-icon">🏦</span>
+                Direct Deposit
+            </button>
+            <button class="bottom-tab" data-tab="move">
+                <span class="nav-icon">💳</span>
+                Move Money
+            </button>
+            <button class="bottom-tab" data-tab="history">
+                <span class="nav-icon">📋</span>
+                History
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════ MODAL ══════════ -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon" id="modal-icon">🔒</div>
+        <div class="modal-title" id="modal-title">Account Frozen</div>
+        <div class="modal-body" id="modal-body">This feature is currently unavailable.</div>
+        <button class="modal-close-btn" id="modal-close-btn">Dismiss</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var VALID_USERNAME = 'robertserah58@gmail.com';
+    var VALID_PASSWORD = 'Serah2024!';
+
+    var loginScreen = document.getElementById('login-screen');
+    var dashboardEl = document.getElementById('dashboard');
+    var loginBtn = document.getElementById('login-btn');
+    var loginBtnText = document.getElementById('login-btn-text');
+    var usernameInp = document.getElementById('username');
+    var passwordInp = document.getElementById('password');
+    var loginError = document.getElementById('login-error');
+    var displayName = document.getElementById('display-name');
+    var logoutBtn = document.getElementById('logout-btn');
+
+    var modalOverlay = document.getElementById('modal-overlay');
+    var modalIcon = document.getElementById('modal-icon');
+    var modalTitle = document.getElementById('modal-title');
+    var modalBody = document.getElementById('modal-body');
+    var modalClose = document.getElementById('modal-close-btn');
+
+    var bottomTabs = document.querySelectorAll('.bottom-tab');
+    var tabPages = {
+        dashboard: document.getElementById('page-dashboard'),
+        directdeposit: document.getElementById('page-directdeposit'),
+        move: document.getElementById('page-move'),
+        history: document.getElementById('page-history')
+    };
+    var miniTxnList = document.getElementById('mini-txn-list');
+    var fullTxnList = document.getElementById('full-txn-list');
+    var currentDateEl = document.getElementById('current-date');
+    var gotoHistoryBtn = document.getElementById('goto-history-btn');
+
+    var isLoggedIn = false;
+    var loginInProgress = false;
+
+    function generateTransactions() {
+        var descriptions = [
+            { desc: 'Wire Transfer – J.P. Morgan Chase', type: 'credit' },
+            { desc: 'ACH Deposit – PayPal Holdings', type: 'credit' },
+            { desc: 'Direct Deposit – Salary (Monthly)', type: 'credit' },
+            { desc: 'Stock Dividend – Apple Inc.', type: 'credit' },
+            { desc: 'Wire Transfer – Goldman Sachs', type: 'credit' },
+            { desc: 'Debit Card Purchase – Amazon.com', type: 'debit' },
+            { desc: 'Wire Transfer – Merrill Lynch', type: 'credit' },
+            { desc: 'ACH Withdrawal – IRS Tax Payment', type: 'debit' },
+            { desc: 'Transfer to Savings', type: 'transfer' },
+            { desc: 'Debit Card – Whole Foods Market', type: 'debit' },
+            { desc: 'Wire Transfer – Bank of America', type: 'credit' },
+            { desc: 'Direct Deposit – Freelance Payment', type: 'credit' },
+            { desc: 'Debit Card – Shell Gas Station', type: 'debit' },
+            { desc: 'Transfer from Checking', type: 'transfer' },
+            { desc: 'Wire Transfer – Fidelity Investments', type: 'credit' },
+            { desc: 'Debit Card – Best Buy', type: 'debit' },
+            { desc: 'ACH Deposit – Client Invoice', type: 'credit' },
+            { desc: 'Wire Transfer – Charles Schwab', type: 'credit' },
+            { desc: 'Debit Card – Uber Rides', type: 'debit' },
+            { desc: 'Direct Deposit – Quarterly Bonus', type: 'credit' },
+            { desc: 'Transfer to Savings', type: 'transfer' },
+            { desc: 'Debit Card – Starbucks', type: 'debit' },
+            { desc: 'Wire Transfer – Morgan Stanley', type: 'credit' },
+            { desc: 'ACH Payment – Mortgage', type: 'debit' },
+            { desc: 'Stock Dividend – Microsoft Corp', type: 'credit' },
+            { desc: 'Debit Card – Target', type: 'debit' },
+            { desc: 'Wire Transfer – Citibank', type: 'credit' },
+            { desc: 'Direct Deposit – Consulting Fee', type: 'credit' },
+            { desc: 'Debit Card – Netflix Subscription', type: 'debit' },
+            { desc: 'Transfer from Checking', type: 'transfer' }
+        ];
+        var amounts = [
+            250000, 185000, 320000, 95000, 410000, 5200, 290000, 85000, 50000,
+            3400, 375000, 180000, 2100, 45000, 310000, 6200, 195000, 265000,
+            1800, 220000, 55000, 900, 340000, 78000, 115000, 4300, 280000,
+            160000, 1500, 48000
+        ];
+        var now = new Date();
+        var results = [];
+        for (var i = 0; i < descriptions.length; i++) {
+            var item = descriptions[i];
+            var d = new Date(now);
+            d.setDate(d.getDate() - (29 - i));
+            d.setHours(Math.floor(Math.random() * 14) + 8, Math.floor(Math.random() * 60));
+            var amt = amounts[i] || Math.floor(Math.random() * 500000) + 1000;
+            var signLabel = item.type === 'credit' ? '+ ' : item.type === 'debit' ? '- ' : '↔ ';
+            var valClass = item.type === 'credit' ? 'positive' : item.type === 'debit' ? 'negative' : 'neutral';
+            results.push({
+                desc: item.desc,
+                iconClass: item.type,
+                iconChar: item.type === 'credit' ? '⬇' : item.type === 'debit' ? '⬆' : '⇄',
+                date: d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+                      + ' at ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }),
+                amount: signLabel + '$' + amt.toLocaleString('en-US') + '.00',
+                valClass: valClass,
+                status: item.type === 'credit' ? 'Cleared' : item.type === 'debit' ? 'Posted' : 'Completed'
+            });
+        }
+        return results;
+    }
+
+    var allTxns = generateTransactions();
+
+    function renderMiniTxns(container, txns, limit) {
+        if (!container) return;
+        var count = limit || 5;
+        var html = '';
+        for (var i = 0; i < count && i < txns.length; i++) {
+            var t = txns[i];
+            var desc = t.desc.length > 28 ? t.desc.substring(0, 26) + '…' : t.desc;
+            html += '<div class="mini-txn-item">'
+                 +   '<div class="mini-txn-left">'
+                 +     '<div class="mtxn-icon ' + t.iconClass + '">' + t.iconChar + '</div>'
+                 +     '<div class="mtxn-details">'
+                 +       '<div class="mtxn-desc">' + desc + '</div>'
+                 +       '<div class="mtxn-date">' + t.date + '</div>'
+                 +     '</div>'
+                 +   '</div>'
+                 +   '<div class="mtxn-amount">'
+                 +     '<div class="mval ' + t.valClass + '">' + t.amount + '</div>'
+                 +   '</div>'
+                 + '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function renderFullTxns(container, txns) {
+        if (!container) return;
+        var html = '';
+        for (var i = 0; i < txns.length; i++) {
+            var t = txns[i];
+            var desc = t.desc.length > 30 ? t.desc.substring(0, 28) + '…' : t.desc;
+            html += '<div class="full-txn-item">'
+                 +   '<div class="full-txn-left">'
+                 +     '<div class="ftxn-icon ' + t.iconClass + '">' + t.iconChar + '</div>'
+                 +     '<div class="ftxn-details">'
+                 +       '<div class="ftxn-desc">' + desc + '</div>'
+                 +       '<div class="ftxn-date">' + t.date + '</div>'
+                 +     '</div>'
+                 +   '</div>'
+                 +   '<div class="ftxn-amount">'
+                 +     '<div class="fval ' + t.valClass + '">' + t.amount + '</div>'
+                 +     '<div class="fstatus">' + t.status + '</div>'
+                 +   '</div>'
+                 + '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function showLoginError(msg) { loginError.textContent = msg; }
+    function clearLoginError() { loginError.textContent = ''; }
+
+    function showScreen(screen) {
+        if (screen === 'login') {
+            loginScreen.classList.remove('hidden');
+            dashboardEl.classList.add('hidden');
+        } else {
+            loginScreen.classList.add('hidden');
+            dashboardEl.classList.remove('hidden');
+        }
+    }
+
+    function switchTab(tabId) {
+        for (var b = 0; b < bottomTabs.length; b++) {
+            bottomTabs[b].classList.remove('active');
+            if (bottomTabs[b].getAttribute('data-tab') === tabId) {
+                bottomTabs[b].classList.add('active');
+            }
+        }
+        for (var key in tabPages) {
+            if (tabPages.hasOwnProperty(key)) {
+                tabPages[key].classList.remove('active');
+            }
+        }
+        if (tabPages[tabId]) tabPages[tabId].classList.add('active');
+    }
+
+    function attemptLogin() {
+        if (loginInProgress) return;
+        var user = usernameInp.value.trim();
+        var pass = passwordInp.value.trim();
+        if (!user || !pass) { showLoginError('Please enter both email and password.'); return; }
+
+        loginInProgress = true;
+        loginBtn.disabled = true;
+        loginBtnText.innerHTML = '<span class="spinner"></span> Signing In...';
+        clearLoginError();
+
+        setTimeout(function() {
+            if (user !== VALID_USERNAME || pass !== VALID_PASSWORD) {
+                showLoginError('Invalid email or password. Access denied.');
+                loginInProgress = false;
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Sign In';
+                return;
+            }
+            clearLoginError();
+            isLoggedIn = true;
+            displayName.textContent = 'Williams Serah';
+
+            var today = new Date();
+            currentDateEl.textContent = today.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+
+            renderMiniTxns(miniTxnList, allTxns, 5);
+            renderFullTxns(fullTxnList, allTxns);
+
+            showScreen('dashboard');
+            switchTab('dashboard');
+
+            loginInProgress = false;
+            loginBtn.disabled = false;
+            loginBtnText.textContent = 'Sign In';
+        }, 2200);
+    }
+
+    function logout() {
+        isLoggedIn = false;
+        usernameInp.value = '';
+        passwordInp.value = '';
+        clearLoginError();
+        showScreen('login');
+        modalOverlay.classList.remove('active');
+    }
+
+    function showModal(action) {
+        var icon, title, body;
+        switch (action) {
+            case 'deposit':
+                icon = '🔒'; title = 'Account Frozen';
+                body = 'Deposits are currently disabled for this account. Your account has been placed on a temporary security freeze. Please contact <strong>customer support</strong> or visit your local <strong>America Fifth Bank</strong> branch to lift the restriction.';
+                break;
+            case 'withdraw':
+                icon = '📞'; title = 'Contact Bank Manager';
+                body = 'Withdrawals exceeding daily limits require <strong>manager approval</strong>. Please reach out to your <strong>branch manager</strong> at <strong>(555) 000-4832</strong> or visit any America Fifth Bank location to complete this transaction.';
+                break;
+            case 'transfer':
+                icon = '📞'; title = 'Contact Bank Manager';
+                body = 'Transfers over $10,000 require manual authorization from your <strong>bank manager</strong>. Please call <strong>(555) 000-4832</strong> or send a secure message through your branch to process this transfer.';
+                break;
+            default:
+                icon = '⚠️'; title = 'Action Unavailable';
+                body = 'This feature is not available at this time.';
+        }
+        modalIcon.textContent = icon;
+        modalTitle.textContent = title;
+        modalBody.innerHTML = body;
+        modalOverlay.classList.add('active');
+    }
+
+    document.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var text = this.getAttribute('data-copy');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    var orig = this.textContent;
+                    this.textContent = 'Copied!';
+                    var self = this;
+                    setTimeout(function() { self.textContent = orig; }, 1800);
+                }.bind(this));
+            } else {
+                var orig = this.textContent;
+                this.textContent = 'Copied!';
+                var self = this;
+                setTimeout(function() { self.textContent = orig; }, 1800);
+            }
+        });
+    });
+
+    loginBtn.addEventListener('click', attemptLogin);
+    passwordInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    usernameInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    logoutBtn.addEventListener('click', logout);
+
+    for (var b = 0; b < bottomTabs.length; b++) {
+        bottomTabs[b].addEventListener('click', function() {
+            if (!isLoggedIn) return;
+            var tab = this.getAttribute('data-tab');
+            switchTab(tab);
+        });
+    }
+
+    if (gotoHistoryBtn) {
+        gotoHistoryBtn.addEventListener('click', function() {
+            if (!isLoggedIn) return;
+            switchTab('history');
+        });
+    }
+
+    var actionBtns = document.querySelectorAll('[data-action]');
+    for (var a = 0; a < actionBtns.length; a++) {
+        actionBtns[a].addEventListener('click', function() {
+            if (!isLoggedIn) return;
+            showModal(this.getAttribute('data-action'));
+        });
+    }
+
+    modalClose.addEventListener('click', function() { modalOverlay.classList.remove('active'); });
+    modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
+
+    showScreen('login');
+});
+</script>
+</body>
+</html>
