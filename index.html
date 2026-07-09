@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>America Fifth Bank – Williams Serah</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: linear-gradient(160deg, #0a1628 0%, #142b44 50%, #0f1f33 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #login-screen {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        #login-screen.hidden { display: none; }
+
+        .login-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 26px; font-weight: 800; color: #fff;
+            letter-spacing: -1px;
+            box-shadow: 0 6px 24px rgba(198,40,40,0.35);
+        }
+        .login-header { text-align: center; margin-bottom: 32px; }
+        .login-header h1 { color: #fff; font-size: 22px; font-weight: 600; }
+        .login-header p { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block; color: rgba(255,255,255,0.6);
+            font-size: 12px; font-weight: 500; margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .form-group input {
+            width: 100%; padding: 14px 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 12px; color: #fff; font-size: 15px;
+            outline: none; transition: border 0.2s;
+        }
+        .form-group input:focus { border-color: #c62828; background: rgba(255,255,255,0.09); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; position: relative;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(198,40,40,0.30);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(198,40,40,0.40); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .login-error { color: #ff5252; font-size: 13px; text-align: center; margin-top: 14px; min-height: 20px; }
+        .login-footer { text-align: center; margin-top: 24px; color: rgba(255,255,255,0.18); font-size: 11px; }
+
+        .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #dashboard { width: 100%; max-width: 780px; transition: opacity 0.3s; }
+        #dashboard.hidden { display: none; }
+
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 14px; }
+        .top-bar-left .logo-small {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #c62828, #8e1a1a);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: #fff;
+            box-shadow: 0 4px 16px rgba(198,40,40,0.25);
+        }
+        .top-bar-left .bank-name { color: #fff; font-size: 18px; font-weight: 600; }
+        .top-bar-left .bank-name small { display: block; font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.35); }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .welcome-user { color: rgba(255,255,255,0.75); font-size: 14px; }
+        .welcome-user strong { color: #fff; }
+        .logout-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.55); padding: 8px 18px; border-radius: 10px;
+            font-size: 13px; cursor: pointer; transition: all 0.2s;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.10); color: #fff; }
+
+        .dash-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        .profile-section {
+            display: flex; align-items: center; gap: 20px;
+            padding: 24px 28px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .profile-avatar {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, #2d5a7a, #1a3a5a);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 700; color: #fff;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.12);
+        }
+        .profile-info h2 { color: #fff; font-size: 20px; font-weight: 600; }
+        .profile-info .member-badge {
+            display: inline-block; margin-top: 4px;
+            background: rgba(0,200,150,0.15); color: #00d4aa;
+            font-size: 11px; font-weight: 600; padding: 3px 12px;
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .profile-stats {
+            display: flex; gap: 28px; margin-left: auto;
+        }
+        .profile-stat { text-align: center; }
+        .profile-stat .num { color: #fff; font-size: 18px; font-weight: 700; }
+        .profile-stat .lbl { color: rgba(255,255,255,0.35); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .tabs {
+            display: flex; border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 28px;
+        }
+        .tab-btn {
+            padding: 16px 24px; color: rgba(255,255,255,0.4);
+            font-size: 14px; font-weight: 500;
+            cursor: pointer; border-bottom: 2px solid transparent;
+            transition: all 0.2s; background: none; border-top: none;
+            border-left: none; border-right: none;
+        }
+        .tab-btn:hover { color: rgba(255,255,255,0.7); }
+        .tab-btn.active { color: #c62828; border-bottom-color: #c62828; }
+
+        .tab-content { display: none; padding: 0; }
+        .tab-content.active { display: block; }
+
+        .balance-area { padding: 28px 28px 8px; }
+        .balance-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 6px;
+        }
+        .balance-row .label { color: rgba(255,255,255,0.4); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .balance-row .amount { color: #fff; font-size: 36px; font-weight: 700; letter-spacing: 1px; }
+        .balance-row .amount .cur { color: rgba(255,255,255,0.35); font-size: 22px; margin-right: 4px; }
+        .balance-sub {
+            color: rgba(255,255,255,0.25); font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .action-row {
+            display: flex; gap: 12px;
+            padding: 16px 28px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .action-btn {
+            flex: 1; padding: 14px; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; background: rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            text-align: center;
+        }
+        .action-btn:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        .action-btn:active { transform: translateY(0); }
+        .action-btn .icon { display: block; font-size: 22px; margin-bottom: 4px; }
+        .action-btn.deposit .icon { color: #00d4aa; }
+        .action-btn.withdraw .icon { color: #ffb347; }
+        .action-btn.transfer .icon { color: #4ea8de; }
+
+        .txn-section { padding: 20px 28px 28px; }
+        .txn-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .txn-header h3 { color: #fff; font-size: 16px; font-weight: 600; }
+        .txn-header span { color: rgba(255,255,255,0.25); font-size: 12px; }
+        .txn-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
+        .txn-list::-webkit-scrollbar { width: 4px; }
+        .txn-list::-webkit-scrollbar-track { background: transparent; }
+        .txn-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .txn-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px; border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.15s;
+        }
+        .txn-item:hover { background: rgba(255,255,255,0.04); }
+        .txn-left { display: flex; align-items: center; gap: 14px; }
+        .txn-icon {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .txn-icon.credit { background: rgba(0,200,150,0.12); color: #00d4aa; }
+        .txn-icon.debit { background: rgba(255,80,80,0.10); color: #ff5252; }
+        .txn-icon.transfer { background: rgba(78,168,222,0.12); color: #4ea8de; }
+        .txn-details .txn-desc { color: #fff; font-size: 14px; font-weight: 500; }
+        .txn-details .txn-date { color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 2px; }
+        .txn-amount { text-align: right; }
+        .txn-amount .val { font-size: 14px; font-weight: 600; }
+        .txn-amount .val.positive { color: #00d4aa; }
+        .txn-amount .val.negative { color: #ff5252; }
+        .txn-amount .val.neutral { color: #4ea8de; }
+        .txn-amount .status { font-size: 11px; color: #00d4aa; }
+
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            align-items: center; justify-content: center;
+            padding: 20px; z-index: 999;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #122b3f; border-radius: 24px;
+            padding: 36px 32px 28px; max-width: 420px; width: 100%;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.25s ease-out;
+        }
+        @keyframes modalIn { from { opacity:0; transform:scale(0.92) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .modal-icon { font-size: 48px; text-align: center; margin-bottom: 10px; }
+        .modal-title { color:#fff; font-size:20px; font-weight:600; text-align:center; margin-bottom:8px; }
+        .modal-body { color:rgba(255,255,255,0.55); font-size:14px; text-align:center; line-height:1.6; margin-bottom:24px; }
+        .modal-body strong { color:rgba(255,255,255,0.85); }
+        .modal-close-btn {
+            width:100%; padding:12px; background:rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+            color:#fff; font-size:14px; font-weight:500; cursor:pointer;
+            transition:background 0.2s;
+        }
+        .modal-close-btn:hover { background:rgba(255,255,255,0.10); }
+
+        @media (max-width: 640px) {
+            .profile-section { flex-wrap: wrap; gap: 12px; }
+            .profile-stats { margin-left: 0; width: 100%; justify-content: space-around; }
+            .action-row { flex-direction: column; gap: 8px; }
+            .balance-row .amount { font-size: 28px; }
+            .top-bar { flex-wrap: wrap; gap: 10px; }
+            .welcome-user { font-size: 12px; }
+            #login-screen { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-logo">A5</div>
+    <div class="login-header">
+        <h1>America Fifth Bank</h1>
+        <p>Secure online banking portal</p>
+    </div>
+    <div class="form-group">
+        <label for="username">Email / Username</label>
+        <input type="text" id="username" placeholder="e.g. robertserah58@gmail.com" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="login-btn">
+        <span id="login-btn-text">Sign In</span>
+    </button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">
+        <p>SSL-encrypted connection &bull; FDIC insured</p>
+    </div>
+</div>
+
+<div id="dashboard" class="hidden">
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo-small">A5</div>
+            <div class="bank-name">
+                America Fifth Bank
+                <small>Online Banking Portal</small>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <span class="welcome-user">Welcome, <strong id="display-name">Williams Serah</strong></span>
+            <button class="logout-btn" id="logout-btn">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="dash-card">
+        <div class="profile-section">
+            <div class="profile-avatar">WS</div>
+            <div class="profile-info">
+                <h2 id="profile-fullname">Williams Serah</h2>
+                <span class="member-badge">● Premium Customer</span>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="num">12</div>
+                    <div class="lbl">Accounts</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="num">7</div>
+                    <div class="lbl">Cards</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="num">2024</div>
+                    <div class="lbl">Member</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="checking">Checking</button>
+            <button class="tab-btn" data-tab="savings">Savings</button>
+        </div>
+
+        <div class="tab-content active" id="tab-checking">
+            <div class="balance-area">
+                <div class="balance-row">
+                    <span class="label">Checking Account Balance</span>
+                    <span class="amount"><span class="cur">$</span>5,900,000.<span style="font-size:20px;">00</span></span>
+                </div>
+                <div class="balance-sub">Account: ****4832 &bull; Routing: 021000021</div>
+            </div>
+            <div class="action-row">
+                <div class="action-btn deposit" data-action="deposit">
+                    <span class="icon">⬇</span> Deposit
+                </div>
+                <div class="action-btn withdraw" data-action="withdraw">
+                    <span class="icon">⬆</span> Withdraw
+                </div>
+                <div class="action-btn transfer" data-action="transfer">
+                    <span class="icon">⇄</span> Transfer
+                </div>
+            </div>
+            <div class="txn-section">
+                <div class="txn-header">
+                    <h3>Transaction History</h3>
+                    <span>Last 30 days</span>
+                </div>
+                <div class="txn-list" id="txn-list-checking"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-savings">
+            <div class="balance-area">
+                <div class="balance-row">
+                    <span class="label">Savings Account Balance</span>
+                    <span class="amount"><span class="cur">$</span>1,240,000.<span style="font-size:20px;">00</span></span>
+                </div>
+                <div class="balance-sub">Account: ****7916 &bull; APY: 4.25%</div>
+            </div>
+            <div class="action-row">
+                <div class="action-btn deposit" data-action="deposit">
+                    <span class="icon">⬇</span> Deposit
+                </div>
+                <div class="action-btn withdraw" data-action="withdraw">
+                    <span class="icon">⬆</span> Withdraw
+                </div>
+                <div class="action-btn transfer" data-action="transfer">
+                    <span class="icon">⇄</span> Transfer
+                </div>
+            </div>
+            <div class="txn-section">
+                <div class="txn-header">
+                    <h3>Transaction History</h3>
+                    <span>Last 30 days</span>
+                </div>
+                <div class="txn-list" id="txn-list-savings"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon" id="modal-icon">🔒</div>
+        <div class="modal-title" id="modal-title">Account Frozen</div>
+        <div class="modal-body" id="modal-body">This feature is currently unavailable.</div>
+        <button class="modal-close-btn" id="modal-close-btn">Dismiss</button>
+    </div>
+</div>
+
+<script>
+// ─── CREDENTIALS ───
+var VALID_USERNAME = 'robertserah58@gmail.com';
+var VALID_PASSWORD = 'Serah2024!';
+
+// ─── Wait for DOM to be ready ───
+document.addEventListener('DOMContentLoaded', function() {
+
+    // DOM elements
+    var loginScreen = document.getElementById('login-screen');
+    var dashboardEl = document.getElementById('dashboard');
+    var loginBtn = document.getElementById('login-btn');
+    var loginBtnText = document.getElementById('login-btn-text');
+    var usernameInp = document.getElementById('username');
+    var passwordInp = document.getElementById('password');
+    var loginError = document.getElementById('login-error');
+    var displayName = document.getElementById('display-name');
+    var profileFullname = document.getElementById('profile-fullname');
+    var logoutBtn = document.getElementById('logout-btn');
+    var modalOverlay = document.getElementById('modal-overlay');
+    var modalIcon = document.getElementById('modal-icon');
+    var modalTitle = document.getElementById('modal-title');
+    var modalBody = document.getElementById('modal-body');
+    var modalClose = document.getElementById('modal-close-btn');
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    var txnListChecking = document.getElementById('txn-list-checking');
+    var txnListSavings = document.getElementById('txn-list-savings');
+
+    var isLoggedIn = false;
+    var loginInProgress = false;
+
+    // ─── Generate 30 realistic transactions ───
+    function generateTransactions() {
+        var descriptions = [
+            { desc: 'Wire Transfer – J.P. Morgan Chase', type: 'credit' },
+            { desc: 'ACH Deposit – PayPal Holdings', type: 'credit' },
+            { desc: 'Direct Deposit – Salary (Monthly)', type: 'credit' },
+            { desc: 'Stock Dividend – Apple Inc.', type: 'credit' },
+            { desc: 'Wire Transfer – Goldman Sachs', type: 'credit' },
+            { desc: 'Debit Card Purchase – Amazon.com', type: 'debit' },
+            { desc: 'Wire Transfer – Merrill Lynch', type: 'credit' },
+            { desc: 'ACH Withdrawal – IRS Tax Payment', type: 'debit' },
+            { desc: 'Transfer to Savings', type: 'transfer' },
+            { desc: 'Debit Card – Whole Foods Market', type: 'debit' },
+            { desc: 'Wire Transfer – Bank of America', type: 'credit' },
+            { desc: 'Direct Deposit – Freelance Payment', type: 'credit' },
+            { desc: 'Debit Card – Shell Gas Station', type: 'debit' },
+            { desc: 'Transfer from Checking', type: 'transfer' },
+            { desc: 'Wire Transfer – Fidelity Investments', type: 'credit' },
+            { desc: 'Debit Card – Best Buy', type: 'debit' },
+            { desc: 'ACH Deposit – Client Invoice', type: 'credit' },
+            { desc: 'Wire Transfer – Charles Schwab', type: 'credit' },
+            { desc: 'Debit Card – Uber Rides', type: 'debit' },
+            { desc: 'Direct Deposit – Quarterly Bonus', type: 'credit' },
+            { desc: 'Transfer to Savings', type: 'transfer' },
+            { desc: 'Debit Card – Starbucks', type: 'debit' },
+            { desc: 'Wire Transfer – Morgan Stanley', type: 'credit' },
+            { desc: 'ACH Payment – Mortgage', type: 'debit' },
+            { desc: 'Stock Dividend – Microsoft Corp', type: 'credit' },
+            { desc: 'Debit Card – Target', type: 'debit' },
+            { desc: 'Wire Transfer – Citibank', type: 'credit' },
+            { desc: 'Direct Deposit – Consulting Fee', type: 'credit' },
+            { desc: 'Debit Card – Netflix Subscription', type: 'debit' },
+            { desc: 'Transfer from Checking', type: 'transfer' }
+        ];
+
+        var baseAmounts = [
+            250000, 185000, 320000, 95000, 410000, 5200, 290000, 85000, 50000,
+            3400, 375000, 180000, 2100, 45000, 310000, 6200, 195000, 265000,
+            1800, 220000, 55000, 900, 340000, 78000, 115000, 4300, 280000,
+            160000, 1500, 48000
+        ];
+
+        var now = new Date();
+        var results = [];
+
+        for (var i = 0; i < descriptions.length; i++) {
+            var item = descriptions[i];
+            var d = new Date(now);
+            d.setDate(d.getDate() - (29 - i));
+            d.setHours(Math.floor(Math.random() * 14) + 8, Math.floor(Math.random() * 60));
+
+            var amt = baseAmounts[i] || Math.floor(Math.random() * 500000) + 1000;
+            var valClass, signLabel;
+
+            if (item.type === 'credit') { signLabel = '+ '; valClass = 'positive'; }
+            else if (item.type === 'debit') { signLabel = '- '; valClass = 'negative'; }
+            else { signLabel = '↔ '; valClass = 'neutral'; }
+
+            results.push({
+                desc: item.desc,
+                iconClass: item.type,
+                iconChar: item.type === 'credit' ? '⬇' : item.type === 'debit' ? '⬆' : '⇄',
+                date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+                amount: signLabel + '$' + amt.toLocaleString('en-US') + '.00',
+                valClass: valClass,
+                status: item.type === 'credit' ? 'Cleared' : item.type === 'debit' ? 'Posted' : 'Completed'
+            });
+        }
+        return results;
+    }
+
+    var allTxns = generateTransactions();
+    var checkingTxns = allTxns.slice(0, 20);
+    var savingsTxns = allTxns.slice(20);
+
+    function renderTransactions(container, txns) {
+        if (!container) return;
+        var html = '';
+        for (var i = 0; i < txns.length; i++) {
+            var t = txns[i];
+            html += '<div class="txn-item">'
+                 +   '<div class="txn-left">'
+                 +     '<div class="txn-icon ' + t.iconClass + '">' + t.iconChar + '</div>'
+                 +     '<div class="txn-details">'
+                 +       '<div class="txn-desc">' + t.desc + '</div>'
+                 +       '<div class="txn-date">' + t.date + '</div>'
+                 +     '</div>'
+                 +   '</div>'
+                 +   '<div class="txn-amount">'
+                 +     '<div class="val ' + t.valClass + '">' + t.amount + '</div>'
+                 +     '<div class="status">' + t.status + '</div>'
+                 +   '</div>'
+                 + '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    // ─── UI Helpers ───
+    function showLoginError(msg) { loginError.textContent = msg; }
+    function clearLoginError() { loginError.textContent = ''; }
+
+    function showScreen(screen) {
+        if (screen === 'login') {
+            loginScreen.classList.remove('hidden');
+            dashboardEl.classList.add('hidden');
+        } else {
+            loginScreen.classList.add('hidden');
+            dashboardEl.classList.remove('hidden');
+        }
+    }
+
+    function attemptLogin() {
+        if (loginInProgress) return;
+
+        var user = usernameInp.value.trim();
+        var pass = passwordInp.value.trim();
+
+        if (!user || !pass) {
+            showLoginError('Please enter both email and password.');
+            return;
+        }
+
+        loginInProgress = true;
+        loginBtn.disabled = true;
+        loginBtnText.innerHTML = '<span class="spinner"></span> Signing In...';
+        clearLoginError();
+
+        setTimeout(function() {
+            if (user !== VALID_USERNAME || pass !== VALID_PASSWORD) {
+                showLoginError('Invalid email or password. Access denied.');
+                loginInProgress = false;
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Sign In';
+                return;
+            }
+
+            // ✅ Success
+            clearLoginError();
+            isLoggedIn = true;
+            displayName.textContent = 'Williams Serah';
+            profileFullname.textContent = 'Williams Serah';
+
+            renderTransactions(txnListChecking, checkingTxns);
+            renderTransactions(txnListSavings, savingsTxns);
+
+            showScreen('dashboard');
+
+            loginInProgress = false;
+            loginBtn.disabled = false;
+            loginBtnText.textContent = 'Sign In';
+        }, 2200);
+    }
+
+    function logout() {
+        isLoggedIn = false;
+        usernameInp.value = '';
+        passwordInp.value = '';
+        clearLoginError();
+        showScreen('login');
+        modalOverlay.classList.remove('active');
+    }
+
+    function showModal(action) {
+        var icon, title, body;
+        switch (action) {
+            case 'deposit':
+                icon = '🔒';
+                title = 'Account Frozen';
+                body = 'Deposits are currently disabled for this account. Your account has been placed on a temporary security freeze. Please contact <strong>customer support</strong> or visit your local <strong>America Fifth Bank</strong> branch to lift the restriction.';
+                break;
+            case 'withdraw':
+                icon = '📞';
+                title = 'Contact Bank Manager';
+                body = 'Withdrawals exceeding daily limits require <strong>manager approval</strong>. Please reach out to your <strong>branch manager</strong> at <strong>(555) 000-4832</strong> or visit any America Fifth Bank location to complete this transaction.';
+                break;
+            case 'transfer':
+                icon = '📞';
+                title = 'Contact Bank Manager';
+                body = 'Transfers over $10,000 require manual authorization from your <strong>bank manager</strong>. Please call <strong>(555) 000-4832</strong> or send a secure message through your branch to process this transfer.';
+                break;
+            default:
+                icon = '⚠️';
+                title = 'Action Unavailable';
+                body = 'This feature is not available at this time.';
+        }
+        modalIcon.textContent = icon;
+        modalTitle.textContent = title;
+        modalBody.innerHTML = body;
+        modalOverlay.classList.add('active');
+    }
+
+    // ─── Event Listeners ───
+    loginBtn.addEventListener('click', attemptLogin);
+    passwordInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    usernameInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    logoutBtn.addEventListener('click', logout);
+
+    var allActionBtns = document.querySelectorAll('[data-action]');
+    for (var a = 0; a < allActionBtns.length; a++) {
+        allActionBtns[a].addEventListener('click', function() {
+            if (!isLoggedIn) return;
+            showModal(this.getAttribute('data-action'));
+        });
+    }
+
+    for (var t = 0; t < tabBtns.length; t++) {
+        tabBtns[t].addEventListener('click', function() {
+            for (var x = 0; x < tabBtns.length; x++) {
+                tabBtns[x].classList.remove('active');
+            }
+            this.classList.add('active');
+            var tabId = this.getAttribute('data-tab');
+            var allContents = document.querySelectorAll('.tab-content');
+            for (var c = 0; c < allContents.length; c++) {
+                allContents[c].classList.remove('active');
+            }
+            var target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.add('active');
+        });
+    }
+
+    modalClose.addEventListener('click', function() { modalOverlay.classList.remove('active'); });
+    modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
+
+    // ─── Start on login screen ───
+    showScreen('login');
+});
+</script>
+</body>
+</html>
